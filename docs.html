@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Developer Documentation & API — Lord of the Ashveil</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #06070a;
+      --bg-surface: #0c0e14;
+      --bg-card: rgba(18, 22, 33, 0.75);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --amber-fire: #f59e0b;
+      --violet-neural: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      line-height: 1.6;
+    }
+    header {
+      border-bottom: 1px solid var(--border-subtle);
+      background: rgba(6, 7, 10, 0.9);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #fff;
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 17px;
+    }
+    .brand span { color: var(--amber-fire); }
+    .nav-right {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .nav-back {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      transition: color 0.2s;
+    }
+    .nav-back:hover { color: #fff; }
+    
+    .docs-layout {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      min-height: calc(100vh - 60px);
+    }
+    @media (max-width: 860px) {
+      .docs-layout { grid-template-columns: 1fr; }
+      .docs-sidebar { display: none; }
+    }
+
+    .docs-sidebar {
+      border-right: 1px solid var(--border-subtle);
+      padding: 32px 24px;
+      position: sticky;
+      top: 60px;
+      height: calc(100vh - 60px);
+      overflow-y: auto;
+    }
+    .sidebar-category {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--amber-fire);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .sidebar-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+    .sidebar-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: block;
+      transition: all 0.2s;
+    }
+    .sidebar-link:hover, .sidebar-link.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .sidebar-link.active {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    .docs-content {
+      padding: 44px 48px 80px;
+      max-width: 900px;
+    }
+    @media (max-width: 600px) {
+      .docs-content { padding: 24px 20px; }
+    }
+
+    .docs-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      padding: 3px 10px;
+      background: rgba(139, 92, 246, 0.15);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+      color: #a78bfa;
+      border-radius: 6px;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: 36px;
+      font-weight: 900;
+      margin-bottom: 14px;
+    }
+    .docs-lead {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 40px 0 14px;
+      color: #fff;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+    }
+    p {
+      color: var(--text-muted);
+      font-size: 14.5px;
+      margin-bottom: 20px;
+    }
+
+    /* Code Snippet Box */
+    .code-box {
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 20px 0 32px;
+    }
+    .code-header {
+      background: #11141e;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    pre {
+      padding: 18px 20px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: #e2e8f0;
+      overflow-x: auto;
+      line-height: 1.6;
+    }
+    .kw { color: #f43f5e; font-weight: 600; }
+    .str { color: #34d399; }
+    .fn { color: #38bdf8; }
+    .com { color: #64748b; font-style: italic; }
+
+    .callout {
+      background: rgba(245, 158, 11, 0.05);
+      border-left: 3px solid var(--amber-fire);
+      padding: 16px 20px;
+      border-radius: 0 10px 10px 0;
+      margin: 24px 0;
+      font-size: 13.5px;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav-container">
+      <a href="index.html" class="brand">ASHVEIL <span>LABS</span> // DEVELOPER PORTAL</a>
+      <div class="nav-right">
+        <a href="pricing.html" class="nav-back">Compute Pricing</a>
+        <a href="index.html" class="nav-back">← Back to Overview</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="sidebar-category">Getting Started</div>
+      <ul class="sidebar-list">
+        <li><a class="sidebar-link active" href="#quickstart">Quickstart SDK</a></li>
+        <li><a class="sidebar-link" href="#authentication">Authentication & Keys</a></li>
+        <li><a class="sidebar-link" href="#long-context">Long-Context Parsing</a></li>
+      </ul>
+
+      <div class="sidebar-category">Core Endpoints</div>
+      <ul class="sidebar-list">
+        <li><a class="sidebar-link" href="#director">POST /v1/director/ingest</a></li>
+        <li><a class="sidebar-link" href="#storyboard">POST /v1/storyboard/compile</a></li>
+        <li><a class="sidebar-link" href="#render">POST /v1/render/stream</a></li>
+      </ul>
+
+      <div class="sidebar-category">Integrations</div>
+      <ul class="sidebar-list">
+        <li><a class="sidebar-link" href="#formats">Royal Road & Webnovel Ingest</a></li>
+        <li><a class="sidebar-link" href="#final-draft">Final Draft Script Parser</a></li>
+      </ul>
+    </aside>
+
+    <main class="docs-content">
+      <div class="docs-badge">API VERSION: v1.4-ALPHA</div>
+      <h1>Ashveil Engine Python SDK</h1>
+      <p class="docs-lead">Integrate autonomous animation generation directly into narrative production pipelines. Pass unstructured raw chapters, novels, or screenplays, and receive synchronized 4K animation sequences.</p>
+
+      <div class="callout">
+        <strong>Private Alpha Rate Limits:</strong> Public API keys are rate-limited to 50 concurrent inferences. For production studio clusters or air-gapped on-premise instances, contact developer relations.
+      </div>
+
+      <h2 id="quickstart">1. Quickstart Installation</h2>
+      <p>Install the official Ashveil Python client library via standard package distribution:</p>
+      <div class="code-box">
+        <div class="code-header"><span>TERMINAL</span><span>bash</span></div>
+        <pre>pip install ashveil-engine</pre>
+      </div>
+
+      <h2 id="quickstart-code">2. Autonomous Novel-to-Anime Execution</h2>
+      <p>Example script analyzing a serialized chapter, extracting character canonical embeddings, and generating a 60fps cinematic cut:</p>
+
+      <div class="code-box">
+        <div class="code-header"><span>director_pipeline.py</span><span>python</span></div>
+        <pre><span class="kw">import</span> ashveil
+
+<span class="com"># Initialize Cognitive Director client</span>
+client = ashveil.Client(api_key=<span class="str">"ash_alpha_live_9482bf1"</span>)
+
+<span class="com"># Ingest raw novel chapter with Long-Context Foundation LLM</span>
+print(<span class="str">"Parsing manuscript logic & character bible..."</span>)
+storyboard = client.director.ingest_manuscript(
+    source_file=<span class="str">"chapter_14_the_ashen_throne.txt"</span>,
+    format=<span class="str">"royal_road"</span>,
+    long_context_window=<span class="str">"200k"</span>,
+    style_preset=<span class="str">"dark_fantasy_60fps"</span>
+)
+
+<span class="com"># Trigger Autonomous Multi-Agent validation & 4K render</span>
+print(<span class="str">f"Compiled {len(storyboard.shots)} cinematic shots. Initiating render cluster..."</span>)
+render_job = client.render.dispatch(
+    storyboard_id=storyboard.id,
+    resolution=<span class="str">"4K_UHD"</span>,
+    frame_rate=<span class="kw">60</span>,
+    temporal_consistency_lock=<span class="kw">True</span>
+)
+
+print(<span class="str">f"Sequence ready: {render_job.stream_url}"</span>)</pre>
+      </div>
+
+      <h2 id="authentication">3. Manuscript Format Compatibility</h2>
+      <p>The ingestion parser natively recognizes structure formats from major creative serialization repositories:</p>
+      <ul>
+        <li style="margin-bottom:8px; color:#cbd5e1;"><strong style="color:#fbbf24;">Royal Road & Webnovel:</strong> Ingests chapter-by-chapter progression, preserving author commentary notes and system popups.</li>
+        <li style="margin-bottom:8px; color:#cbd5e1;"><strong style="color:#fbbf24;">Final Draft (.fdx) & Fountain:</strong> Converts standard sluglines, action paragraphs, and parentheticals directly into camera shot vectors.</li>
+      </ul>
+    </main>
+  </div>
+</body>
+</html>
