@@ -1,115 +1,1494 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Lord of the Ashveil</title>
+  <title>Lord of the Ashveil — Autonomous AI Animation Engine</title>
+  <meta name="description" content="Turn long-form manuscripts and web novels into cinematic animated series using Long-Context LLMs and Autonomous Multi-Agent Directors.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg-void: #06070a;
+      --bg-surface: #0c0e14;
+      --bg-card: rgba(18, 22, 33, 0.65);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-glow: rgba(245, 158, 11, 0.28);
+      --amber-fire: #f59e0b;
+      --amber-glow: #d97706;
+      --ember-red: #ef4444;
+      --violet-neural: #8b5cf6;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+    }
+
     * {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
-      background: radial-gradient(circle at top, #1e1b4b, #09090b);
-      color: #f8fafc;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px;
-    }
-    .badge {
-      display: inline-block;
-      padding: 6px 16px;
-      border-radius: 999px;
-      background: rgba(99, 102, 241, 0.15);
-      border: 1px solid rgba(129, 140, 248, 0.3);
-      color: #818cf8;
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 24px;
-      letter-spacing: 0.5px;
-    }
-    h1 {
-      font-size: clamp(36px, 6vw, 64px);
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(135deg, #ffffff 40%, #94a3b8);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 16px;
-    }
-    p {
-      font-size: clamp(16px, 2.5vw, 20px);
-      color: #94a3b8;
-      max-width: 580px;
+      background-color: var(--bg-void);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow-x: hidden;
       line-height: 1.6;
-      margin-bottom: 32px;
+      selection-background-color: var(--amber-fire);
     }
-    .status-card {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      padding: 20px 32px;
-      backdrop-filter: blur(10px);
-      margin-bottom: 36px;
+
+    /* Ambient Ember Canvas Overlay */
+    #ember-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Radial Glowing Atmosphere */
+    .ambient-glow {
+      position: fixed;
+      width: 700px;
+      height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(217, 119, 6, 0.07) 0%, rgba(139, 92, 246, 0.03) 50%, transparent 70%);
+      top: -150px;
+      right: 10%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+    }
+
+    .ambient-glow-2 {
+      position: fixed;
+      width: 600px;
+      height: 600px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+      bottom: 10%;
+      left: -100px;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(90px);
+    }
+
+    /* Glass Effect Utilities */
+    .glass-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 20px;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(245, 158, 11, 0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.7), 0 0 24px rgba(245, 158, 11, 0.08);
+    }
+
+    /* Top Navigation */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(6, 7, 10, 0.75);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
       display: flex;
       align-items: center;
       gap: 12px;
+      text-decoration: none;
+      cursor: pointer;
     }
-    .dot {
-      width: 10px;
-      height: 10px;
-      background: #22c55e;
-      border-radius: 50%;
-      box-shadow: 0 0 12px #22c55e;
-      animation: pulse 2s infinite;
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(245, 158, 11, 0.35);
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(0.85); }
+
+    .brand-text {
+      font-family: 'Cinzel', serif;
+      font-weight: 900;
+      font-size: 19px;
+      letter-spacing: 1.5px;
+      color: #fff;
+      text-transform: uppercase;
     }
-    .btn {
-      padding: 14px 32px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, #6366f1, #4f46e5);
-      color: #ffffff;
-      font-size: 16px;
-      font-weight: 600;
+
+    .brand-text span {
+      background: linear-gradient(90deg, #f59e0b, #fbbf24);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+      cursor: pointer;
+    }
+
+    .nav-links a:hover {
+      color: #fff;
+    }
+
+    .btn-launch {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #06070a;
+      font-weight: 700;
+      font-size: 13.5px;
+      padding: 10px 22px;
+      border-radius: 10px;
       border: none;
       cursor: pointer;
-      box-shadow: 0 4px 20px rgba(99, 102, 241, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       transition: all 0.2s ease;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3);
+    }
+
+    .btn-launch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
+    }
+
+    /* Hero Section */
+    .hero {
+      position: relative;
+      z-index: 10;
+      padding: 160px 24px 80px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .phase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 18px;
+      border-radius: 999px;
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      letter-spacing: 0.5px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: #fbbf24;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #fbbf24;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.8); }
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(40px, 6.5vw, 76px);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+    }
+
+    .hero-title .gradient-text {
+      background: linear-gradient(135deg, #ffffff 30%, #f59e0b 80%, #ef4444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-subtitle {
+      max-width: 760px;
+      margin: 0 auto 40px;
+      font-size: clamp(16px, 2vw, 19px);
+      color: var(--text-muted);
+      line-height: 1.7;
+      font-weight: 400;
+    }
+
+    .hero-cta-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.04);
+      color: #f8fafc;
+      font-weight: 600;
+      font-size: 14.5px;
+      padding: 13px 26px;
+      border-radius: 12px;
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-primary-large {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #06070a;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 34px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+      box-shadow: 0 6px 28px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-primary-large:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(245, 158, 11, 0.55);
+    }
+
+    /* Simulated Interactive Production Workstation */
+    .studio-console {
+      max-width: 1040px;
+      margin: 0 auto;
+      border-radius: 18px;
+      background: #090b10;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(245, 158, 11, 0.12);
+      overflow: hidden;
+      text-align: left;
+    }
+
+    .console-header {
+      background: #11141d;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .window-controls {
+      display: flex;
+      gap: 8px;
+    }
+
+    .w-dot {
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+    }
+
+    .w-red { background: #ef4444; }
+    .w-yellow { background: #f59e0b; }
+    .w-green { background: #10b981; }
+
+    .console-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+
+    .console-body {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      min-height: 380px;
+    }
+
+    @media (max-width: 860px) {
+      .console-body {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .console-preview {
+      background: radial-gradient(circle at center, #1b1626, #090a0f);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      border-right: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .preview-canvas {
+      width: 100%;
+      height: 240px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(139, 92, 246, 0.15)), url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"><rect width="600" height="300" fill="%230f111a"/><circle cx="300" cy="140" r="90" fill="%23f59e0b" opacity="0.15"/><polygon points="300,50 360,190 240,190" fill="%238b5cf6" opacity="0.25"/><text x="300" y="240" font-family="sans-serif" font-size="12" fill="%23f59e0b" text-anchor="middle" letter-spacing="3">RENDER STREAM // SCENE 14: THE ASHEN THRONE</text></svg>');
+      background-size: cover;
+      background-position: center;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rec-tag {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #ef4444;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .console-telemetry {
+      padding: 24px;
+      background: #0b0d13;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .tele-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
+    }
+
+    .tele-label {
+      color: var(--text-dim);
+    }
+
+    .tele-val {
+      color: #fbbf24;
+      font-weight: 600;
+    }
+
+    .agent-stream {
+      margin-top: 16px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #cbd5e1;
+    }
+
+    .agent-highlight {
+      color: #a78bfa;
+      font-weight: 600;
+    }
+
+    /* Target Ecosystem & Manuscript Integrations */
+    .ecosystem-section {
+      position: relative;
+      z-index: 10;
+      padding: 70px 24px 50px;
+      max-width: 1100px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-eyebrow {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--amber-fire);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .ecosystem-heading {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 30px;
+      letter-spacing: 0.5px;
+    }
+
+    .eco-grid {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .eco-badge {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #cbd5e1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s ease;
+    }
+
+    .eco-badge:hover {
+      border-color: rgba(245, 158, 11, 0.4);
+      background: rgba(245, 158, 11, 0.05);
+      color: #fff;
+    }
+
+    /* Core Metrics Section */
+    .metrics-bar {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 40px auto 80px;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    @media (max-width: 768px) {
+      .metrics-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .metric-card {
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .metric-number {
+      font-family: 'Cinzel', serif;
+      font-size: 36px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #ffffff, #f59e0b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 4px;
+    }
+
+    .metric-desc {
+      font-size: 13px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    /* TECHNICAL ARCHITECTURE // POWERED BY FOUNDATION LLMS */
+    .arch-section {
+      position: relative;
+      z-index: 10;
+      padding: 100px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(28px, 4vw, 46px);
+      font-weight: 800;
+      margin-bottom: 16px;
+      letter-spacing: -0.01em;
+    }
+
+    .section-desc {
+      color: var(--text-muted);
+      max-width: 720px;
+      font-size: 16.5px;
+      margin-bottom: 56px;
+    }
+
+    .arch-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+
+    @media (max-width: 860px) {
+      .arch-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .arch-card {
+      padding: 40px 36px;
+      position: relative;
+    }
+
+    .arch-icon-wrapper {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 24px;
+    }
+
+    .icon-amber {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      color: #fbbf24;
+    }
+
+    .icon-violet {
+      background: rgba(139, 92, 246, 0.12);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      color: #a78bfa;
+    }
+
+    .arch-card h3 {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 14px;
+      color: #fff;
+    }
+
+    .arch-card p {
+      color: var(--text-muted);
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 24px;
+    }
+
+    .arch-spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 20px;
+    }
+
+    .arch-spec-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13.5px;
+      color: #cbd5e1;
+    }
+
+    .arch-spec-item::before {
+      content: "▹";
+      color: var(--amber-fire);
+      font-weight: bold;
+    }
+
+    /* 4-Step Pipeline */
+    .pipeline-section {
+      position: relative;
+      z-index: 10;
+      padding: 80px 24px 100px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 990px) {
+      .pipeline-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 580px) {
+      .pipeline-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .pipe-step {
+      padding: 30px 24px;
+    }
+
+    .step-idx {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      color: var(--amber-fire);
+      font-weight: 700;
+      margin-bottom: 14px;
+    }
+
+    .pipe-step h4 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #fff;
+    }
+
+    .pipe-step p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Showcase Section (Anime / Cinematic Styles) */
+    .showcase-section {
+      position: relative;
+      z-index: 10;
+      padding: 80px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .showcase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .show-card {
+      overflow: hidden;
+      border-radius: 18px;
+      cursor: pointer;
+    }
+
+    .show-visual {
+      height: 240px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding: 20px;
+    }
+
+    .vis-1 {
+      background: linear-gradient(180deg, rgba(6,7,10,0.1) 0%, rgba(6,7,10,0.95) 100%), linear-gradient(135deg, #ef4444 0%, #1e1b4b 100%);
+    }
+
+    .vis-2 {
+      background: linear-gradient(180deg, rgba(6,7,10,0.1) 0%, rgba(6,7,10,0.95) 100%), linear-gradient(135deg, #f59e0b 0%, #312e81 100%);
+    }
+
+    .vis-3 {
+      background: linear-gradient(180deg, rgba(6,7,10,0.1) 0%, rgba(6,7,10,0.95) 100%), linear-gradient(135deg, #8b5cf6 0%, #064e3b 100%);
+    }
+
+    .show-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #fbbf24;
+    }
+
+    .show-info {
+      padding: 22px 24px;
+    }
+
+    .show-info h4 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+
+    .show-info p {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    /* CTA Banner */
+    .cta-banner {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      margin: 80px auto;
+      padding: 70px 32px;
+      text-align: center;
+      background: radial-gradient(circle at center, rgba(245, 158, 11, 0.12) 0%, rgba(18, 22, 33, 0.8) 70%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 28px;
+    }
+
+    .cta-banner h2 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(30px, 4.5vw, 48px);
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .cta-banner p {
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 36px;
+      font-size: 16px;
+    }
+
+    /* Footer with Entity Legitimacy */
+    footer {
+      position: relative;
+      z-index: 10;
+      background: #040507;
+      border-top: 1px solid var(--border-subtle);
+      padding: 70px 24px 40px;
+    }
+
+    .footer-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 60px;
+    }
+
+    @media (max-width: 860px) {
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .footer-container {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .footer-brand h4 {
+      font-family: 'Cinzel', serif;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 14px;
+      letter-spacing: 1px;
+    }
+
+    .footer-brand p {
+      font-size: 13.5px;
+      color: var(--text-dim);
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+
+    .footer-entity {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: #fbbf24;
+    }
+
+    .footer-col h5 {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 18px;
+      letter-spacing: 0.5px;
+    }
+
+    .footer-col ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-col a {
+      color: var(--text-dim);
+      font-size: 13.5px;
+      text-decoration: none;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    .footer-col a:hover {
+      color: #fff;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 30px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+
+    .footer-bottom a {
+      color: var(--amber-fire);
       text-decoration: none;
     }
-    .btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 24px rgba(99, 102, 241, 0.6);
+
+    /* UNIVERSAL GATED PRIVATE ALPHA MODAL */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.25s ease;
     }
-    footer {
+
+    .modal-overlay.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 480px;
+      background: #0f121a;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+      border-radius: 24px;
+      padding: 36px 32px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 40px rgba(245, 158, 11, 0.2);
+      position: relative;
+      transform: scale(0.95);
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: scale(1);
+    }
+
+    .modal-close {
       position: absolute;
-      bottom: 24px;
-      font-size: 13px;
-      color: #64748b;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: #fff;
+    }
+
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #f87171;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .modal-text {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 16px;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+
+    .form-input:focus {
+      border-color: var(--amber-fire);
+      background: rgba(245, 158, 11, 0.03);
+    }
+
+    .btn-submit-modal {
+      width: 100%;
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: #06070a;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 18px rgba(245, 158, 11, 0.35);
+    }
+
+    .btn-submit-modal:hover {
+      box-shadow: 0 6px 24px rgba(245, 158, 11, 0.5);
+    }
+
+    .modal-success-state {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .modal-success-state.active {
+      display: block;
     }
   </style>
 </head>
 <body>
-  <div class="badge">🚀 Website đang khởi tạo tự động bởi AI</div>
-  <h1>Lord of the Ashveil</h1>
-  <p>Hệ thống kết nối Vercel & GitHub đã thiết lập thành công. Giờ đây mọi ý tưởng và yêu cầu của bạn sẽ được AI cập nhật trực tiếp tại đây!</p>
-  
-  <div class="status-card">
-    <div class="dot"></div>
-    <span>Kết nối: <strong>Trực tiếp & Sẵn sàng</strong></span>
+
+  <!-- Ambient Light Backdrops -->
+  <div class="ambient-glow"></div>
+  <div class="ambient-glow-2"></div>
+  <canvas id="ember-canvas"></canvas>
+
+  <!-- Navigation -->
+  <header>
+    <div class="nav-container">
+      <a class="brand gate-trigger">
+        <div class="brand-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+          </svg>
+        </div>
+        <div class="brand-text">ASHVEIL <span>LABS</span></div>
+      </a>
+
+      <ul class="nav-links">
+        <li><a class="gate-trigger">Architecture</a></li>
+        <li><a class="gate-trigger">Pipeline</a></li>
+        <li><a class="gate-trigger">Integrations</a></li>
+        <li><a class="gate-trigger">Pricing</a></li>
+        <li><a class="gate-trigger">Docs / API</a></li>
+      </ul>
+
+      <button class="btn-launch gate-trigger">
+        <span>Launch Studio</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="phase-badge">
+      <div class="pulse-dot"></div>
+      <span>PRIVATE ALPHA • ACCEPTING STUDIO PARTNERS & WEB NOVEL CREATORS</span>
+    </div>
+
+    <h1 class="hero-title">
+      Autonomous AI Animation<br>
+      <span class="gradient-text">Born From The Ash</span>
+    </h1>
+
+    <p class="hero-subtitle">
+      Lord of the Ashveil operates an enterprise-grade Autonomous Animation Pipeline. Powered by <strong>Long-Context Foundation LLMs</strong>, we orchestrate character consistency, automated cinematography, and high-fidelity rendering directly from written manuscripts.
+    </p>
+
+    <div class="hero-cta-group">
+      <button class="btn-primary-large gate-trigger">
+        <span>Request Early Studio Access</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </button>
+
+      <button class="btn-secondary gate-trigger">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+        <span>Watch 4K Production Reel</span>
+      </button>
+    </div>
+
+    <!-- Simulated Interactive Production Console -->
+    <div class="studio-console">
+      <div class="console-header">
+        <div class="window-controls">
+          <div class="w-dot w-red"></div>
+          <div class="w-dot w-yellow"></div>
+          <div class="w-dot w-green"></div>
+        </div>
+        <div class="console-title">ashveil-agentic-director // active-cluster: Claude-3.5-Enterprise</div>
+        <div style="font-family:'JetBrains Mono'; font-size:11px; color:#10b981;">● SYNCED 60 FPS</div>
+      </div>
+
+      <div class="console-body">
+        <div class="console-preview">
+          <div class="rec-tag">● REC NEURAL RENDER</div>
+          <div class="preview-canvas"></div>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-family:'JetBrains Mono'; font-size:11px; color:var(--text-dim);">SEQUENCE: Ep01_Act02_Scene14.raw</span>
+            <span style="font-family:'JetBrains Mono'; font-size:11px; color:#fbbf24;">4K UHD (3840x2160)</span>
+          </div>
+        </div>
+
+        <div class="console-telemetry">
+          <div>
+            <div class="tele-line">
+              <span class="tele-label">COGNITIVE ENGINE</span>
+              <span class="tele-val">Long-Context Foundation LLM</span>
+            </div>
+            <div class="tele-line">
+              <span class="tele-label">MANUSCRIPT ANALYZED</span>
+              <span class="tele-val">1.2M Words (Web Novel)</span>
+            </div>
+            <div class="tele-line">
+              <span class="tele-label">CHARACTER CONSISTENCY</span>
+              <span class="tele-val">99.82% Embedding Lock</span>
+            </div>
+            <div class="tele-line">
+              <span class="tele-label">AUTONOMOUS AGENTS</span>
+              <span class="tele-val">Director / Screenwriter / DP</span>
+            </div>
+          </div>
+
+          <div class="agent-stream">
+            <span class="agent-highlight">[AI Director]:</span> "Camera tracking velocity matching Lord Vaelen's descent. Applying volumetric ash ember depth pass. Verification score 0.994."
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Target Ecosystem / Integrations Section -->
+  <section class="ecosystem-section">
+    <div class="section-eyebrow">TARGET ECOSYSTEM & MANUSCRIPT INTEGRATIONS</div>
+    <div class="ecosystem-heading">Direct pipeline compatibility with premier storytelling platforms and manuscript standards</div>
+    <div class="eco-grid">
+      <div class="eco-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <span>Royal Road Manuscripts</span>
+      </div>
+      <div class="eco-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line></svg>
+        <span>Webnovel Serialization Format</span>
+      </div>
+      <div class="eco-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect><line x1="8" y1="21" x2="16" y2="21"></line><line x1="12" y1="17" x2="12" y2="21"></line></svg>
+        <span>Substack Fiction & Lore</span>
+      </div>
+      <div class="eco-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+        <span>Final Draft & Fountain Scripts</span>
+      </div>
+      <div class="eco-badge">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        <span>Archive of Our Own (AO3) Standards</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics Bar -->
+  <div class="metrics-bar">
+    <div class="glass-card metric-card">
+      <div class="metric-number">100x</div>
+      <div class="metric-desc">Faster Pipeline Velocity</div>
+    </div>
+    <div class="glass-card metric-card">
+      <div class="metric-number">4K 60fps</div>
+      <div class="metric-desc">Theatrical Render Quality</div>
+    </div>
+    <div class="glass-card metric-card">
+      <div class="metric-number">1M+</div>
+      <div class="metric-desc">Context Token Script Memory</div>
+    </div>
+    <div class="glass-card metric-card">
+      <div class="metric-number">99.8%</div>
+      <div class="metric-desc">Character Persona Consistency</div>
+    </div>
   </div>
 
-  <a href="#test" class="btn" onclick="alert('Kết nối thành công!')">Trải nghiệm tương tác</a>
+  <!-- Technical Architecture // Powered by Foundation LLMs -->
+  <section class="arch-section">
+    <div class="section-eyebrow">SYSTEM ARCHITECTURE // REVOLUTIONIZING CINEMA</div>
+    <h2 class="section-title">Powered by Long-Context Foundation LLMs</h2>
+    <p class="section-desc">Traditional generative tools suffer from hallucination and temporal drift. Ashveil Labs utilizes frontier reasoning LLMs to serve as the unified cognitive backbone across the entire animation production lifecycle.</p>
 
-  <footer>© lordoftheashveil.com - Powered by Antigravity AI</footer>
+    <div class="arch-grid">
+      <!-- Card 1 -->
+      <div class="glass-card arch-card">
+        <div class="arch-icon-wrapper icon-amber">🧠</div>
+        <h3>Cognitive Director Engine</h3>
+        <p>Harnessing million-token context windows to ingest complete novel series in a single inference call. The engine reconstructs deep narrative continuity, emotional arcs, and multi-layered worldbuilding logic.</p>
+        <ul class="arch-spec-list">
+          <li class="arch-spec-item">Automated Character Bibles & Visual Lore Extraction</li>
+          <li class="arch-spec-item">Temporal Continuity & Plot Logic Guardrails</li>
+          <li class="arch-spec-item">Instant Translation into Cinematic Shot Lists (Focal Length, Lighting, Camera Motions)</li>
+        </ul>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="glass-card arch-card">
+        <div class="arch-icon-wrapper icon-violet">🎭</div>
+        <h3>Agentic Multi-Role Simulation</h3>
+        <p>An autonomous committee of specialized AI agents simulating an elite animation studio. Instead of raw prompt-to-video, our agents debate, review, and iterate on each storyboard before triggering GPU rendering.</p>
+        <ul class="arch-spec-list">
+          <li class="arch-spec-item"><strong>AI Director:</strong> Enforces pacing, atmospheric tone, and visual rhythm</li>
+          <li class="arch-spec-item"><strong>AI Screenwriter:</strong> Adapts prose into punchy cinematic dialogue</li>
+          <li class="arch-spec-item"><strong>AI Art Supervisor:</strong> Validates keyframe character fidelity against canonical models</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4-Step Pipeline -->
+  <section class="pipeline-section">
+    <div class="section-eyebrow">END-TO-END AUTONOMOUS PIPELINE</div>
+    <h2 class="section-title">From Unstructured Text to Theatrical Anime</h2>
+    <p class="section-desc">Zero manual keyframing required. A closed-loop automated sequence engineered for high-throughput production.</p>
+
+    <div class="pipeline-grid">
+      <div class="glass-card pipe-step">
+        <div class="step-idx">01 // INGESTION</div>
+        <h4>Manuscript Parsing</h4>
+        <p>LLM parses chapters, builds relationship graphs, and outputs strict JSON storyboards with precise camera framing vectors.</p>
+      </div>
+
+      <div class="glass-card pipe-step">
+        <div class="step-idx">02 // CANONICAL LOCK</div>
+        <h4>Neural Character Anchor</h4>
+        <p>Latent space identity locking prevents facial mutations and wardrobe drift across hundreds of dynamic lighting scenarios.</p>
+      </div>
+
+      <div class="glass-card pipe-step">
+        <div class="step-idx">03 // DYNAMICS</div>
+        <h4>Physics & Neural Motion</h4>
+        <p>Diffusion transformers synthesize fluid 60fps action sequences with accurate fabric physics, blade dynamics, and environmental ember trails.</p>
+      </div>
+
+      <div class="glass-card pipe-step">
+        <div class="step-idx">04 // AUDIO & MASTERING</div>
+        <h4>Spatial Sound & Final Master</h4>
+        <p>Multi-voice emotional vocal synthesis, automated Foley sound effects, and final 4K ACES-color grade mastering.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Showcase / Production Gallery -->
+  <section class="showcase-section">
+    <div class="section-eyebrow">STUDIO BENCHMARKS</div>
+    <h2 class="section-title">Generative Aesthetics Without Compromise</h2>
+    <p class="section-desc">Sample production frames generated autonomously by the Ashveil Engine across fantasy, sci-fi, and dark noir genres.</p>
+
+    <div class="showcase-grid">
+      <div class="glass-card show-card gate-trigger">
+        <div class="show-visual vis-1">
+          <div class="show-tag">DARK FANTASY // 60 FPS</div>
+        </div>
+        <div class="show-info">
+          <h4>Chronicles of the Ash Monarch</h4>
+          <p>Adapted from a 450,000-word Royal Road serialized dark fantasy novel.</p>
+        </div>
+      </div>
+
+      <div class="glass-card show-card gate-trigger">
+        <div class="show-visual vis-2">
+          <div class="show-tag">CYBER NOIR // CINEMATIC</div>
+        </div>
+        <div class="show-info">
+          <h4>Neon Veil: Protocol Zero</h4>
+          <p>Multi-agent cinematic dialogue pacing with volumetric atmospheric lighting.</p>
+        </div>
+      </div>
+
+      <div class="glass-card show-card gate-trigger">
+        <div class="show-visual vis-3">
+          <div class="show-tag">ANIME SHONEN // 4K MASTER</div>
+        </div>
+        <div class="show-info">
+          <h4>Covenant of the Void</h4>
+          <p>Complex high-speed sword combat physics rendered with zero manual keyframing.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Call to Action Banner -->
+  <div class="cta-banner">
+    <h2>Empower Your Stories With Ashveil</h2>
+    <p>We are selectively onboarding leading Web Novel Publishers, Manga Studios, and Indie Creators for our Private Alpha Cohort.</p>
+    <button class="btn-primary-large gate-trigger">
+      <span>Join Private Alpha Cohort</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+    </button>
+  </div>
+
+  <!-- Footer with Entity Legitimacy -->
+  <footer>
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h4>ASHVEIL LABS</h4>
+        <p>Architecting autonomous generative systems for next-generation cinematic animation. Backed by proprietary multi-agent cognitive director pipelines.</p>
+        <div class="footer-entity">ENTITY: Ashveil Labs / Ashveil Studio</div>
+        <div style="font-size: 13px; color: var(--text-dim); margin-top: 6px;">CONTACT: <a href="mailto:founder@lordoftheashveil.com" style="color:#fbbf24; text-decoration:none;">founder@lordoftheashveil.com</a></div>
+      </div>
+
+      <div class="footer-col">
+        <h5>ARCHITECTURE</h5>
+        <ul>
+          <li><a class="gate-trigger">Cognitive Director</a></li>
+          <li><a class="gate-trigger">Multi-Agent Engine</a></li>
+          <li><a class="gate-trigger">Identity Lock V4</a></li>
+          <li><a class="gate-trigger">Diffusion In-Betweening</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>INTEGRATIONS</h5>
+        <ul>
+          <li><a class="gate-trigger">Royal Road Pipeline</a></li>
+          <li><a class="gate-trigger">Webnovel Ingest</a></li>
+          <li><a class="gate-trigger">Final Draft Exporter</a></li>
+          <li><a class="gate-trigger">API SDK Access</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h5>PARTNERSHIP</h5>
+        <ul>
+          <li><a class="gate-trigger">Private Alpha Access</a></li>
+          <li><a class="gate-trigger">Studio Licensing</a></li>
+          <li><a class="gate-trigger">Compute Grants</a></li>
+          <li><a class="gate-trigger">Security & NDA</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div>© 2026 Ashveil Labs / Ashveil Studio. All rights reserved. Registered Enterprise Entity.</div>
+      <div>
+        <a class="gate-trigger" style="margin-right: 18px;">Privacy Protocol</a>
+        <a class="gate-trigger" style="margin-right: 18px;">Terms of Compute</a>
+        <a class="gate-trigger">Model Safety Card</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- UNIVERSAL GATED PRIVATE ALPHA MODAL -->
+  <div class="modal-overlay" id="alphaModal">
+    <div class="modal-box">
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+      
+      <div class="modal-badge">
+        <span style="display:inline-block; width:6px; height:6px; background:#ef4444; border-radius:50%;"></span>
+        <span>COHORT #01 FULL • NEXT COHORT: Q4 2026</span>
+      </div>
+
+      <h3 class="modal-title">ASHVEIL STUDIO // PRIVATE ACCESS</h3>
+      
+      <p class="modal-text">
+        To ensure compute resource allocation and model stability, Ashveil Studio is currently restricted to selected narrative studios, web novel creators, and development partners.
+      </p>
+
+      <div id="modalForm">
+        <div class="form-group">
+          <label class="form-label">Work Email / Studio Handle</label>
+          <input type="email" class="form-input" id="emailInput" placeholder="creator@studio.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Invite Token (Optional)</label>
+          <input type="text" class="form-input" placeholder="ASHVEIL-ALPHA-XXXX">
+        </div>
+
+        <button class="btn-submit-modal" id="submitWaitlistBtn">Request Early Access</button>
+      </div>
+
+      <div class="modal-success-state" id="modalSuccess">
+        <div style="font-size: 38px; margin-bottom: 12px;">✨</div>
+        <h4 style="color:#fff; font-size:18px; font-weight:700; margin-bottom:8px;">You're on the priority waitlist (#284)</h4>
+        <p style="color:var(--text-muted); font-size:13px; line-height:1.6;">Your credentials have been logged for Cohort #02. Our engineering team reviews applications weekly. Check your inbox soon.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts: Interactive Canvas & Universal Gated Trigger -->
+  <script>
+    // Universal Gate Modal Trigger
+    const modal = document.getElementById('alphaModal');
+    const closeBtn = document.getElementById('closeModalBtn');
+    const triggers = document.querySelectorAll('.gate-trigger');
+    const submitBtn = document.getElementById('submitWaitlistBtn');
+    const formBox = document.getElementById('modalForm');
+    const successBox = document.getElementById('modalSuccess');
+    const emailInput = document.getElementById('emailInput');
+
+    triggers.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.classList.add('active');
+      });
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.classList.remove('active');
+    });
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('active');
+      }
+    });
+
+    submitBtn.addEventListener('click', () => {
+      if (emailInput.value.trim() === '') {
+        alert('Please enter your work email or handle.');
+        return;
+      }
+      formBox.style.display = 'none';
+      successBox.classList.add('active');
+    });
+
+    // Floating Ash Ember Canvas Animation
+    const canvas = document.getElementById('ember-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const particleCount = 45;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        size: Math.random() * 2 + 0.8,
+        speedY: -(Math.random() * 0.7 + 0.2),
+        speedX: (Math.random() - 0.5) * 0.4,
+        opacity: Math.random() * 0.6 + 0.2,
+        color: Math.random() > 0.4 ? '#f59e0b' : '#ef4444'
+      });
+    }
+
+    function animateEmbers() {
+      ctx.clearRect(0, 0, width, height);
+
+      particles.forEach(p => {
+        p.y += p.speedY;
+        p.x += p.speedX;
+
+        if (p.y < 0) {
+          p.y = height + 10;
+          p.x = Math.random() * width;
+        }
+
+        ctx.fillStyle = p.color;
+        ctx.globalAlpha = p.opacity;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      requestAnimationFrame(animateEmbers);
+    }
+    animateEmbers();
+  </script>
 </body>
 </html>
